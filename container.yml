@@ -1,0 +1,37 @@
+version: '2'
+settings:
+        conductor:
+                base: 'ubuntu:xenial'
+        project_name: tzt_web
+        k8s_namespace:
+                name: tzt_web
+                description: tzt web container
+                display_name: tzt web
+services:
+        web:
+                from: 'ubuntu:xenial'
+                ports:
+                        - 80:8080
+                        - 443:8443
+                volumes:
+                        - tzt:/var/lib/mysql/tzt
+                roles:
+                        - dumb-init
+                        - time
+                        - web
+                        - dbms
+                        - php
+
+                entrypoint: [ "/usr/bin/dumb-init", "--"] 
+                user: 'root'
+                command: ["/usr/bin/dumb-init",'/init.sh']
+                tty: true
+volumes:
+        tzt:
+                k8s:
+                        state: present
+                        force: false
+                        access_modes:
+                                - ReadWriteMany
+                        requested_storage: 100Gi
+regestries: {}

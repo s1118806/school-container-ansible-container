@@ -1,0 +1,11 @@
+---
+# defaults file for web
+STATIC_ROOT: /var/www/html
+STATIC_LOCATION: "{{ STATIC_ROOT }}/"
+PIDFILE_DIR: /run/nginx
+ASSET_PATHS: []
+PROXY: no 
+PROXY_PASS: ""
+PROXY_LOCATION: "/"
+
+CACHE_STATICS: no

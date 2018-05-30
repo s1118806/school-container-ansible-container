@@ -1,0 +1,34 @@
+---
+
+- name: install mariadb
+  apt:
+          name: "{{ item }}"
+          state: latest
+  with_items:
+          - mariadb-server
+          - mariadb-client
+
+
+- name: copy mariadb config
+  copy:
+          src: 50-server.cnf
+          dest: /etc/mysql/mariadb.conf.d 
+
+- name: copy marriadb my.cnf
+  copy:
+          src: my.cnf
+          dest: /etc/mysql
+
+- name: make mysqld directory
+  file:
+          dest: /var/run/mysqld
+          state: directory
+
+- name: make link for socket
+  file:
+          state: link
+          force: true
+          follow: true
+          src: /tmp/mysqld.sock
+          dest: /var/run/mysqld/mysqld.sock
+

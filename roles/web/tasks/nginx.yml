@@ -1,0 +1,86 @@
+---
+
+- name: install nginx
+  package:
+          name: "nginx"
+          state: latest
+          update_cache: yes
+
+
+- name: make nginx group
+  group:
+          name: nginx
+          state: present
+
+- name: make nginx user and update
+  user:
+          name: nginx
+          uid: 1000
+          group: "{{ item }}"
+          createhome: no
+  with_items:
+          - "root"
+          - "nginx"
+          - "www-data"
+
+- name: copy nginx config
+  copy:
+          src: nginx.conf
+          dest: /etc/nginx/
+
+- name: copy nginx default 
+  copy:
+          src: default
+          dest: /etc/nginx/sites-available/
+
+- name: make log file directories
+  file:
+          path: "{{ item }}"
+          state: directory
+          owner: root
+          group: root
+          mode: 0775
+  with_items:
+          - "{{ STATIC_ROOT }}"
+          - "{{ PIDFILE_DIR }}"
+          - /var/log/nginx
+          - /var/lib/nginx
+
+- name: clear stupid log files
+  file:
+          path: "/var/log/nginx/{{ item }}"
+          state: absent
+  with_items:
+          - access.log
+          - error.log
+
+- name: change permissions of var
+  file:
+          path: "{{ item }}"
+          owner: nginx
+          group: nginx
+          mode: 0775
+  with_items:
+          - /var
+          - /var/log
+          - /var/lib
+          - "{{ STATIC_ROOT }}"
+          - "{{ PIDFILE_DIR }}"
+          - /var/log/nginx
+          - /var/lib/nginx
+
+            #- name: delete default html file
+            #  file:
+            #path: /var/www/html/index.nginx-debian.html
+            #state: absent
+
+- name: install own html file
+  copy:
+          src: "{{ item }}"
+          dest: /var/www/html/
+          owner: root
+          group: root
+          mode: 0644
+  with_items:
+          - index.html
+          - dbtest.php

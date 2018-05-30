@@ -1,0 +1,54 @@
+---
+- name: update apt cache
+  apt:
+          update_cache: yes
+          name: ca-certificates
+
+- name: install dumb init
+  get_url:
+          url: https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64
+          dest: /usr/bin/dumb-init
+          owner: root
+          group: root
+          mode: 0775
+
+- name: copy mysql script
+  copy:
+          src: script.sh
+          dest: /script.sh
+          mode: a+rx
+
+- name: make init.sh file
+  file:
+          dest: /init.sh
+          state: touch
+          mode: a+rx
+
+- name: add sh as service
+  lineinfile:
+          dest: /init.sh
+          line: "#!/usr/bin/dumb-init /bin/sh"
+
+- name: add nginx as service
+  lineinfile:
+          dest: /init.sh
+          line: "nginx -c /etc/nginx/nginx.conf"
+
+- name: add php-fpm as service
+  lineinfile:
+          dest: /init.sh
+          line: "php-fpm7.2 -c /etc/php/7.2/php.ini"
+
+- name: add mariadb as service
+  lineinfile:
+          dest: /init.sh
+          line: "mysqld --skip-grant-tables"
+- name: add script
+  lineinfile:
+          dest: /init.sh
+          line: ./script.sh
+
+- name: add sleep as service
+  lineinfile:
+          dest: /init.sh
+          line: "sleep 10000"
